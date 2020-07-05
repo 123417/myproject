@@ -3,7 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var process=require('process')//自定义端口号时引入的模块
+//var process=require('process')//自定义端口号时引入的模块
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');

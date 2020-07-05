@@ -3,37 +3,7 @@
       <div class="mask_layer" id="mask_layer" v-show="price_mask_isshow"></div>
         <Header />
         <nav-bread></nav-bread>
-        <!-- 登录 -->
-  <!--      <div class="md-modal modal-msg md-modal-transition">-->
-  <!--        <div class="md-modal-inner">-->
-  <!--          <div class="md-top">-->
-  <!--            <div class="md-title">Login in</div>-->
-  <!--            <button class="md-close">Close</button>-->
-  <!--          </div>-->
-  <!--          <div class="md-content">-->
-  <!--            <div class="confirm-tips">-->
-  <!--              <div class="error-wrap">-->
-  <!--                <span class="error error-show" v-show="errorTip">用户名或者密码错误</span>-->
-  <!--              </div>-->
-  <!--              <ul>-->
-  <!--                <li class="regi_form_input">-->
-  <!--                  <i class="icon IconPeople"></i>-->
-  <!--                  <input type="text" tabindex="1" name="loginname" v-model="userName"-->
-  <!--                         class="regi_login_input regi_login_input_left" placeholder="User Name" data-type="loginname" />-->
-  <!--                </li>-->
-  <!--                <li class="regi_form_input noMargin">-->
-  <!--                  <i class="icon IconPwd"></i>-->
-  <!--                  <input type="password" tabindex="2" name="password"-->
-  <!--                         class="regi_login_input regi_login_input_left login-input-no input_text" placeholder="Password" />-->
-  <!--                </li>-->
-  <!--              </ul>-->
-  <!--            </div>-->
-  <!--            <div class="login-wrap">-->
-  <!--              <a href="javascript:;" class="btn-login">登 录</a>-->
-  <!--            </div>-->
-  <!--          </div>-->
-  <!--        </div>-->
-  <!--      </div>-->
+
 
       <div class="accessory-result-page accessory-page">
         <div class="container">
@@ -46,7 +16,7 @@
             <a href="javascript:void(0)" class="filterby stopPop"  @click="price_menu">Filter by</a>
           </div>
           <div class="accessory-result">
-            <!-- filter -->
+            filter
             <div class="filter stopPop" id="filter" v-bind:class="{'filterby-show':price_menu_isshow}">
               <dl class="filter-price">
                 <dt>Price:</dt>
@@ -78,10 +48,10 @@
                 <div v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10" class="goodsInfinite">
                    <span v-show="loadingSvg" >加载中...</span>
                 </div>
-                <!--v-infinite-scroll:滚动就会触发这个事件
+                <!-- v-infinite-scroll:滚动就会触发这个事件
                   busy值为true时，禁止滚动；为false时，可以滚动
-                  infinite-scroll-distance设置距离底部的距离，到达这个距离可以滚动
-                  -->
+                  infinite-scroll-distance设置距离底部的距离，到达这个距离可以滚动 -->
+                 
               </div>
             </div>
           </div>
@@ -189,7 +159,7 @@
   }
 </script>
 
-<style scoped="scoped">
+<style>
   .mask_layer{
     width: 100vw;
     height:100vh;

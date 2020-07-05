@@ -21,7 +21,8 @@ router.get('/',function(req,res,next){//路由
   var priceGt='' //最大
   var priceLt=''  //最小
   let params={}
-  if(priceLevel!='active'){  //没有点击all按钮
+  if(priceLevel){
+    if(priceLevel!='active'){  //没有点击all按钮
     console.log(priceLevel)
     switch (priceLevel) {
       case '0': priceLt=0; priceGt=100; break;
@@ -36,8 +37,9 @@ router.get('/',function(req,res,next){//路由
       }
     }  //查询的条件必须是个对象，空对象查全部
    }
+  }
   let goosModel=Good.find(params).skip(skip).limit(pageSize)//每页的条数
-  console.log(sort)
+  // console.log(sort)
   goosModel.sort({"productPrice":sort})//以价格排序
   goosModel.exec(function(err,doc){
     if(err){
@@ -54,6 +56,80 @@ router.get('/',function(req,res,next){//路由
           list:doc
         }
       })
+    }
+  })
+})
+//购物车
+router.get('/addCart',function(req,res,next){
+  //假设得到了用户id
+  var userId="100000077"
+  var productId=req.param('productId')
+
+  //var productId=req.body.productId//商品ID---post
+  let User=require('../model/user_model.js')
+  console.log(User)
+  User.find({userId:userId},function(err,userDoc){
+    if(err){
+      // console.log('aaa')
+      res.json({
+        status:'1',
+        msg:err.message
+      })
+    }else{
+      if(userDoc){
+        var dataOnly=true//判断购物车有没有此商品
+        console.log(userDoc);//userDoc是一个数组
+        userDoc[0].cartList.forEach(function(item){
+          // console.log(item)
+          if(item.productId==productId){
+            dataOnly=false
+            // console.log(item.productNum)
+            item.productNum=item.productNum+1
+            userDoc[0].save(function(err1,doc1){
+              if(err1){
+                res.json({
+                  status:'1',
+                  msg:err1.message
+                })
+              }else{
+                res.json({
+                  status:'0',
+                  msg:'',
+                  result:'success'
+                })
+              }
+            })
+          }
+        })
+        if(dataOnly){
+          Good.findOne({productId:productId},function(err2,doc2){
+            if(err2){
+              res.json({
+                status:'1',
+                msg:err2.message
+              })
+            }else{
+              doc2.productNum=1
+              doc2.checked='1'
+              userDoc[0].cartList.push(doc2)
+              userDoc[0].save(function(err3,doc3){//save是一个对象保存数据的方法
+                if(err3){
+                  res.json({
+                    status:'1',
+                    msg:err3.message
+                  })
+                }else{
+                  res.json({
+                    status:'0',
+                    msg:'',
+                    result:'success'
+                  })
+                }
+              })
+            }
+          })
+        }
+      }
     }
   })
 })
