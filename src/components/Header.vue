@@ -79,7 +79,19 @@
           nickName:''
         }
       },
+      mounted(){
+        this.checkLogin()
+      },
       methods:{
+        //刷新时登录名不变
+        checkLogin(){
+          this.$axios.post('/users/checkLogin').then((res)=>{
+            if(res.data.status=='0'){
+              this.nickName=res.data.result
+            }
+          })
+        },
+        //用户登陆
         Login(){
           if(this.userName=='' || this.userPwd==''){
             this.errorTip=true

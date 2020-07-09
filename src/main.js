@@ -13,6 +13,8 @@ Vue.use(lazyload,{
 })
 Vue.config.productionTip = false
 
+import {currency} from './util 钱的标识符/currency.js'
+Vue.filter('c',currency)
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

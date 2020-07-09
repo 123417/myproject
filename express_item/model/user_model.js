@@ -6,7 +6,7 @@ var userSchema=new Schema({
   "userPwd":String,
   "orderList":Array,
   "cartList":[{
-      "productImage":String,
+      "productImg":String,
       "productPrice":Number,
       "productName":String,
       "productId":String,

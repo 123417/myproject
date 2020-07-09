@@ -21,6 +21,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(function(req,res,next){//路由拦截:在没有登陆的情况下拦截购物车
+// console.log(req.cookies)
+  if(req.cookies.userId){
+    next()
+  }else{
+    console.log(req.originalUrl)
+    if(req.originalUrl=='/users/login' || req.originalUrl=='/users/logout' || req.originalUrl.indexOf('/goods/list')>-1 || req.originalUrl.indexOf('/goods/addCart')>-1){//因为/goods/list后面有传的参数，所以是能用indexof方法，不能等于
+      next()
+    }
+  }
+})
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/goods',goods);

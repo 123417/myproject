@@ -40,7 +40,7 @@
                       <div class="name">{{item.productName}}</div>
                       <div class="price">{{item.productPrice}}</div>
                       <div class="btn-area">
-                        <a href="javascript:;" class="btn btn--m">加入购物车</a>
+                        <a href="javascript:;" class="btn btn--m" @click="addCart(item.productId)">加入购物车</a>
                       </div>
                     </div>
                   </li>
@@ -51,12 +51,25 @@
                 <!-- v-infinite-scroll:滚动就会触发这个事件
                   busy值为true时，禁止滚动；为false时，可以滚动
                   infinite-scroll-distance设置距离底部的距离，到达这个距离可以滚动 -->
-                 
+
               </div>
             </div>
           </div>
         </div>
       </div>
+      <Modal :mdShow="mdShow" v-on:close="closeModal">
+        <p slot="message">请先登录，否则无法加入购物车</p>
+        <div slot="btnGroup">
+          <a class="btn btn-m">关闭</a>
+        </div>
+      </Modal>
+      <Modal :mdShow="mdCartShow" v-on:close="closeModal">
+        <p slot="message">成功加入购物车</p>
+        <div slot="btnGroup">
+          <a class="btn btn-m" @click="mdCartShow=false">继续购物</a>
+          <router-link to="/cart" class="btn btn-m">查看购物车</router-link>
+        </div>
+      </Modal>
       <nav-footer></nav-footer>
 
     </div>
@@ -70,9 +83,12 @@
   import Header from "../components/Header";
   import NavFooter from "../components/NavFooter";
   import NavBread from "../components/NavBread";
+  import Modal from "../components/modal.vue"
   export default{
         data(){
           return {
+              mdCartShow:false,
+              mdShow:false,
               loadingSvg:true,
               busy:true,
               sortFlag:true,//升降序开关
@@ -94,6 +110,17 @@
           this.getGoodsList()
         },
         methods:{
+          //没有登录的时候关闭模态框
+          closeModal(){
+            this.mdShow=false
+            this.mdCartShow=false
+          },
+          addCart(productId){
+            this.$axios.post('/goods/addCart',{productId:productId}).then(res=>{
+              console.log(res.data)
+              res.data.status=='0'?this.mdCartShow=true:this.mdShow=true
+            })
+          },
           sortGoods(){
             this.sortFlag=!this.sortFlag;
             this.page=1;
@@ -130,9 +157,9 @@
               pageSize:this.pageSize,
               sort:this.sortFlag?1:-1
             }
-            this.$axios.get('/goods',{params:pageData}).then(
+            this.$axios.get('/goods/list',{params:pageData}).then(
               res=>{
-                console.log(res.data.result.list);
+                // console.log(res.data.result.list);
                 if(res.data.status=="0"){
                   if(flag){
                     this.goodList=this.goodList.concat(res.data.result.list)
@@ -154,7 +181,8 @@
         components:{
            Header,
            NavFooter,
-           NavBread
+           NavBread,
+           Modal
         }
   }
 </script>
@@ -172,4 +200,5 @@
     line-height: 100px;
     text-align: center;
   }
+
 </style>
