@@ -264,7 +264,7 @@
             this.cartList=res.data.result
           }
         })
-        console.log(this.cartList)
+        // console.log(this.cartList)
       }
     },
     components:{

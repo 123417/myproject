@@ -14,7 +14,14 @@ var userSchema=new Schema({
       "productNum":Number,
       "checked":String
     }],
-  "addressList":Array
+  "addressList":[{
+    "addressId" : String,
+    "userName" : String,
+    "streetName" : String,
+    "postCode" : String,
+    "tel" : String,
+    "isDefault" : Boolean
+  }]
 })
 module.exports=mongoose.model('users',userSchema)
 // "userId" : "100000077",

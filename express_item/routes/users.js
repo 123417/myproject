@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+require('../util/util.js')
 var User=require('../model/user_model')
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -178,7 +179,7 @@ router.post('/allCheck',function(req,res,next){
 router.get('/addressList',function(req,res,next){
   var userId=req.cookies.userId
   User.findOne({userId:userId},function(err,doc){
-    console.log(doc)
+    // console.log(doc)
     if(err){
       res.json({
         status:'1'
@@ -193,4 +194,137 @@ router.get('/addressList',function(req,res,next){
     }
   })
 })
+// set Default
+router.post('/setDefault',function(req,res,next){
+  var userId=req.cookies.userId
+  var addressId=req.body.addressId
+  User.findOne({userId:userId},function(err,doc){
+    if(err){
+      res.json({
+        status:'1'
+      })
+    }else{
+      var addressLists=doc.addressList
+      addressLists.forEach(function(item){
+        if(addressId==item.addressId){
+          item.isDefault=true
+        }else{
+          item.isDefault=false
+        }
+      })
+      doc.save(function(err1,doc1){
+        if(err1){
+          res.json({
+            status:'1'
+          })
+        }else{
+          res.json({
+            status:'0',
+            result:'success'
+          })
+        }
+      })
+    }
+  })
+})
+//删除地址接口
+router.post('/delAddress',function(req,res,next){
+  var userId=req.cookies.userId
+  var addressId=req.body.addressId
+  User.update({userId:userId},{$pull:{"addressList":{"addressId":addressId}}},function(err,doc){
+    if(err){
+      res.json({
+        status:'1'
+      })
+    }else{
+      res.json({
+        status:'0'
+      })
+    }
+  })
+})
+//确认添加地址
+router.post('/confirmAddress',function(req,res,next){
+  var userId=req.cookies.userId
+  User.findOne({userId:userId},function(err,doc){
+    if(err){
+      res.json({
+        status:'1'
+      })
+    }else{
+      if(doc){
+        doc.addressList.push(req.body)
+        doc.save(function(err1,doc1){
+          if(err1){
+            res.json({
+              status:'1'
+            })
+          }else{
+            res.json({
+              status:'0'
+            })
+          }
+        })
+      }
+    }
+  })
+})
+//Proceed to payment
+router.post('/payment',function(req,res,next){
+  var userId=req.cookies.userId
+  var addressId=req.body.addressId
+  var OrderTotal=req.body.OrderTotal
+  User.findOne({userId:userId},function(err,doc){
+    if(err){
+      res.json({
+        status:'1'
+      })
+    }else{
+      if(doc){
+        var address='',goodlist=[]
+        doc.addressList.forEach(function(item){
+          if(addressId==item.addressId){
+            address=item
+          }
+        })
+        doc.cartList.forEach(function(item){
+          if(item.checked=='1'){
+            goodlist.push(item)
+          }
+        })
+        var platform='318'//平台吗
+        var r1=Math.floor(Math.random()*10)//随机数
+        var r2=Math.floor(Math.random()*10)//随机数
+        var sysDate=new Date().Format('yyyyMMddhhmmss')
+        var createDate=new Date().Format('yyyy-MM-dd hh:mm:ss')
+        var orderId=platform+r1+sysDate+r2//订单号
+        var order={//要添加的数据
+          orderId:orderId,
+          orderTotal:OrderTotal,
+          addressInfo:address,
+          goodsList:goodlist,
+          orderStatus:"1",
+          createDate:createDate
+        }
+        doc.orderList.push(order)
+        doc.save(function(err1,doc1){
+          if(err1){
+            res.json({
+              status:'1'
+            })
+          }else{
+            res.json({
+              status:'0',
+              result:{
+                orderId:order.orderId,
+                orderTotal:order.orderTotal
+              }
+            })
+          }
+        })
+      }
+    }
+  })
+})
 module.exports = router;
+

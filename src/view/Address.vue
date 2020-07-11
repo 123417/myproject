@@ -60,7 +60,7 @@
             <div class="addr-list-wrap">
               <div class="addr-list">
                 <ul>
-                  <li v-for="(item,index) in addressListFilter" v-bind:class="{'check':index==checkIndex}" @click="checkIndex=index">
+                  <li v-for="(item,index) in addressListFilter" v-bind:class="{'check':index==checkIndex}" @click="checkIndex=index;selectAddressId=item.addressId" >
                     <!--通过数组的下标和循环的索引对应,绑定class为check-->
                     <!--当你点击某个地址改变他的checkIndex为当前index的值-->
                     <dl>
@@ -68,17 +68,17 @@
                       <dd class="address">{{item.streetName}}</dd>
                       <dd class="tel">{{item.tel}}</dd>
                     </dl>
-                    <div class="addr-opration addr-del">
+                    <div class="addr-opration addr-del" @click="delAddressBtn(item.addressId)">
                         <a href="javascript:;" class="addr-del-btn" >
                         <svg class="icon icon-del"><use xlink:href="#icon-del"></use></svg>
                       </a>
                     </div>
                     <div class="addr-opration addr-set-default">
-                      <a href="javascript:;" class="addr-set-default-btn"><i>Set default</i></a>
+                      <a href="javascript:;" class="addr-set-default-btn" v-if="!item.isDefault" @click="setDefault(item.addressId)"><i>Set default</i></a>
                     </div>
-                    <div class="addr-opration addr-default" >Default address</div>
+                    <div class="addr-opration addr-default" v-if="item.isDefault">Default address</div>
                   </li>
-                  <li class="addr-new">
+                  <li class="addr-new" @click="addNewAddress">
                     <div class="add-new-inner"  >
                       <i class="icon-add">
                         <svg class="icon icon-add"><use xlink:href="#icon-add"></use></svg>
@@ -125,16 +125,16 @@
           </div>
         </div>
       </div>
-      <Modal v-bind:mdShow="isShow">
+      <Modal v-bind:mdShow="isShow" @close="closeModal">
         <!--自定义事件-->
         <p slot="message"style="font-size: 35px;color: crimson;font-weight: bold">确认删除此地址吗</p>
         <div slot="btnGroup">
-          <a class="btn btn-m">确认</a>
-          <a class="btn btn-m">取消</a>
+          <a class="btn btn-m" @click="confirmDel">确认</a>
+          <a class="btn btn-m" @click="isShow=false">取消</a>
         </div>
       </Modal>
 
-      <Modal v-bind:mdShow="isAdd" class="addAddress">
+      <Modal v-bind:mdShow="isAdd" class="addAddress" @close="closeModal">
         <!--自定义事件-->
         <p slot="message"style="font-size: 20px;color: crimson;font-weight: bold">添加你的新地址
         <input type="text" placeholder="请输入你的姓名" v-model="name">
@@ -143,8 +143,8 @@
         <input type="text" placeholder="请输入你的邮编" v-model="postCode">
         </p>
         <div slot="btnGroup">
-          <a class="btn btn-m">确认</a>
-          <a class="btn btn-m">取消</a>
+          <a class="btn btn-m" @click="confirmAdd">确认</a>
+          <a class="btn btn-m" @click="isAdd=false">取消</a>
         </div>
       </Modal>
       <!--删除底部-->
@@ -172,61 +172,6 @@
             addressList:[]//地址列表
           }
       },
-    // methods:{
-    //   addAddress(){
-    //     axios.post('/users/addAddress',{
-    //       userName:this.name,       //用户名
-    //       streetName:this.address,    //地址
-    //       postCode:this.postCode,     //邮编
-    //       tel:this.tel,               //电话
-    //       isDefault:false,             //是否默认
-    //       addressId:new Date().getTime()+parseInt(Math.random()*1000)
-
-    //     }).then((res)=>{
-    //         if (res.data.status=='0'){
-    //           //console.log('add address suc')
-    //           this.isAdd=false;
-    //           this.init()
-    //         }
-    //     })
-    //   },
-    //   showAddModal(){
-    //     this.isAdd=true
-    //     // console.log(123)
-    //   },
-    //   delAddress(){
-    //     axios.post('/users/delAddress',{addressId:this.addressId}).then((res)=>{
-    //       if (res.data.status=='0'){
-    //           this.isShow=false;   //关闭模态框
-    //         //console.log('del suc!')
-    //         this.init()
-    //       }
-    //     })
-    //   },
-    //     delAddressConfirm(addressId){
-    //       this.isShow=true;
-    //       this.addressId=addressId
-    //     },
-    //     closeModal(){
-    //         this.isShow=false;
-    //         this.isAdd=false//关闭添加地址模态框
-    //     },
-    //     setDefault(addressId){
-    //         axios.post('/users/setAddress',{addressId:addressId}).then((res)=>{
-    //           if (res.data.status=="0"){
-    //             //console.log("suc")
-    //             this.init()
-    //           }
-
-    //         })
-    //     },
-    //     expand(){
-    //       if (this.limit==3) {   //说明默认选择三条数据
-    //         this.limit=this.addressList.length//展开的数据==地址列表的总数---->展开
-    //       }else {
-    //         this.limit=3
-    //       }
-    //     },
     computed:{
       addressListFilter(){
         return this.addressList.slice(0,this.limit)
@@ -236,6 +181,50 @@
         this.init()
     },
     methods:{
+      //确认添加地址
+      confirmAdd(){
+        this.$axios.post('/users/confirmAddress',{
+                "addressId" : new Date().getTime()+parseInt(Math.random()*1000),
+                "userName" : this.name,
+                "streetName" : this.address,
+                "postCode" : this.postCode,
+                "tel" : this.tel,
+                "isDefault" : false
+        }).then(res=>{
+          console.log('地址添加成功')
+        })
+        this.isAdd=false
+      },
+      //添加新地址
+      addNewAddress(){
+        this.isAdd=true
+      },
+      //确认删除按钮
+      confirmDel(){
+        this.$axios.post('/users/delAddress',{addressId:this.addressId}).then(res=>{
+          console.log(res.data.status)
+          this.isShow=false
+          this.init()
+        })
+      },
+      //删除地址按钮
+      delAddressBtn(addressId){
+        this.isShow=true
+        this.addressId=addressId
+      },
+      //模态框关闭按钮
+      closeModal(){
+        this.isShow=false
+        this.isAdd=false
+      },
+      //设置默认设置
+      setDefault(addressId){
+        this.$axios.post('/users/setDefault',{addressId:addressId}).then(res=>{
+          console.log(res.data.result)
+          this.init()
+        })
+      },
+      //more的状态变化
       getMore(){
         if(this.limit==3){
           this.limit=this.addressList.length
