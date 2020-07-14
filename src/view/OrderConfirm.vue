@@ -183,7 +183,7 @@
     methods:{
       pay(){
         this.addressId=this.$route.query.addressId
-        console.log(this.addressId)
+        // console.log(this.addressId)
         this.$axios.post('/users/payment',{"addressId":this.addressId,"OrderTotal":this.OrderTotal}).then(res=>{
           if(res.data.status=='0'){
             this.$router.push({

@@ -326,5 +326,64 @@ router.post('/payment',function(req,res,next){
     }
   })
 })
-module.exports = router;
+//购物车数量
+router.get('/cartcount',function(req,res,next){
+  if(req.cookies.userId){
+    var userId=req.cookies.userId
+    User.findOne({userId:userId},function(err,doc){
+      if(err){
+        res.json({
+          status:'1'
+        })
+      }else{
+        var cartLists=doc.cartList
+        var cartcounts=0
+        cartLists.forEach(function(item){
+          cartcounts+=item.productNum
+        })
+        res.json({
+          status:'0',
+          result:cartcounts
+        })
+      }
+    })
+  }
+})
+//删除购物成功之后已买的商品
+router.get('/delOrderGoods',function(req,res,next){
+  var userId=req.cookies.userId
+  var orderId=req.param('orderId')
+  console.log(orderId)
+  User.findOne({userId:userId},function(err,doc){
+    if(err){
+      res.json({
+        status:'1'
+      })
+    }else{
+      var delGoodsLists=[]
+      doc.orderList.forEach((item)=>{
+        if(item.orderId==orderId){
+          item.goodsList.forEach((items)=>{
+            delGoodsLists.push(items.productId)
+          })
+        }
+      })
+      console.log(delGoodsLists)
+      var xindelGoodsLists=[...new Set(delGoodsLists)]
+      console.log(xindelGoodsLists)
+      xindelGoodsLists.forEach((item)=>{
+        User.update({userId:userId},{$pull:{"cartList":{"productId":item}}},function(err,doc){
+          if(err){
+            res.json({
+              status:'1'
+            })
+          }else{
+            console.log('成功了')
+          }
+        })
+      })
 
+    }
+  })
+})
+module.exports = router;

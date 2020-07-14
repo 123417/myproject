@@ -21,7 +21,7 @@
           <a href="javascript:void(0)" class="navbar-link" @click="LoginBtn" v-show="!nickName">Login</a>
           <a href="javascript:void(0)" class="navbar-link" @click="LogoutBtn">Logout</a>
           <div class="navbar-cart-container">
-            <span class="navbar-cart-count"></span>
+            <span class="navbar-cart-count">{{cartNum}}</span>
             <a class="navbar-link navbar-cart-link" href="/#/cart">
               <svg class="navbar-cart-logo">
                 <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
@@ -76,18 +76,35 @@
           errorTip:false,//错误显示提示
           loginFlag:false,
           blackShow:false,
-          nickName:''
+          // nickName:''
         }
       },
       mounted(){
         this.checkLogin()
+        this.cartProductNum()
+      },
+      computed:{
+        nickName(){
+          return this.$store.state.nickname
+        },
+        cartNum(){
+          return this.$store.state.cartCount
+        }
       },
       methods:{
+        //购物车数量
+        cartProductNum(){
+          this.$axios.get('/users/cartcount').then(res=>{
+            this.$store.commit('initCartCount',res.data.result)
+          })
+        },
         //刷新时登录名不变
         checkLogin(){
           this.$axios.post('/users/checkLogin').then((res)=>{
             if(res.data.status=='0'){
-              this.nickName=res.data.result
+              // this.nickName=res.data.result
+              this.$store.commit('updateNickname',res.data.result)
+              this.cartProductNum()
             }
           })
         },
@@ -107,7 +124,8 @@
               this.errorTip=false
               this.loginFlag=false
               this.blackShow=false
-              this.nickName=res.result.userName
+              this.$store.commit('updateNickname',res.result.userName)
+              this.cartProductNum()
             }else{
               this.errorTip=true
             }
@@ -120,7 +138,8 @@
         LogoutBtn(){
           this.$axios.post('/users/logout').then((res)=>{
             if(res.data.status=='0'){
-              this.nickName=''
+              this.$store.commit('updateNickname','')
+              this.$store.commit('initCartCount','')
             }
           })
         },

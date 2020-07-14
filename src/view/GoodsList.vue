@@ -118,7 +118,8 @@
           addCart(productId){
             this.$axios.post('/goods/addCart',{productId:productId}).then(res=>{
               console.log(res.data)
-              res.data.status=='0'?this.mdCartShow=true:this.mdShow=true
+              res.data.status=='0'?this.mdCartShow=true:this.mdShow=true;
+              this.$store.commit('updateCartCount',1)
             })
           },
           sortGoods(){

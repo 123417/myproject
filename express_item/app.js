@@ -26,7 +26,7 @@ app.use(function(req,res,next){//路由拦截:在没有登陆的情况下拦截�
   if(req.cookies.userId){
     next()
   }else{
-    console.log(req.originalUrl)
+    // console.log(req.originalUrl)
     if(req.originalUrl=='/users/login' || req.originalUrl=='/users/logout' || req.originalUrl.indexOf('/goods/list')>-1 || req.originalUrl.indexOf('/goods/addCart')>-1){//因为/goods/list后面有传的参数，所以是能用indexof方法，不能等于
       next()
     }

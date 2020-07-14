@@ -64,9 +64,6 @@
               <li v-for="item in cartList">
                 <div class="cart-tab-1">
                   <div class="cart-item-check">
-
-
-
                     <!--单选-->
                     <a href="javascipt:;" class="checkbox-btn item-check-btn"v-bind:class="{'check':item.checked=='1'}"@click="editCart(item)">
                       <svg class="icon icon-ok">
@@ -101,7 +98,7 @@
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
                     <!--删除的时候  传递的是整个购物车列表的参数-->
-                    <a href="javascript:;" class="item-edit-btn" @click="delCart(item.productId)">
+                    <a href="javascript:;" class="item-edit-btn" @click="delCart(item.productId,item.productNum)">
                       <svg class="icon icon-del">
                         <use xlink:href="#icon-del"></use>
                       </svg>
@@ -158,7 +155,6 @@
   import Header from '@/components/Header'
   import NavFooter from '@/components/NavFooter'
   import NavBread from '@/components/NavBread'
-  // import axios from "axios"
   import Modal from "@/components/modal"
   // import {currency} from "../util/currency"       //局部引入过滤器的插件
   export default {
@@ -168,7 +164,8 @@
         //checkAllFlag:false,//全选的状态,自己的----关闭,将他变成计算属性
         delCartShow:false,//默认关闭模态框
         productId:'',       //商品Id
-        cartList:[]//购物车数据
+        cartList:[],//购物车数据
+        productNum:''
       }
     },
     mounted(){
@@ -229,14 +226,16 @@
       cartNum(tp,item){
         if(tp=='jian'){
           item.productNum--
+          this.$store.commit('updateCartCount',-1)
           if(item.productNum<1){
             item.productNum=1
           }
         }else if(tp=='add'){
           item.productNum++
+          this.$store.commit('updateCartCount',1)
         }
         this.$axios.post('/users/cartNum',{productId:item.productId,productNum:item.productNum}).then((res)=>{
-        console.log(res.data)
+        // console.log(res.data)
         })
       },
       //模态框上的确认删除按钮
@@ -245,13 +244,16 @@
           console.log(res.data.status)
           if(res.data.status=='0'){
             this.delCartShow=false
+            this.$store.commit('updateCartCount',-this.productNum)
+            this.init()
           }
         })
       },
       //删除按钮
-      delCart(productId){
+      delCart(productId,productNum){
         this.delCartShow=true
         this.productId=productId
+        this.productNum=productNum
       },
       //模态框上的X按钮
       closeModal(){

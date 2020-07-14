@@ -64,15 +64,9 @@
           }
           this.orderId=orderId
           this.orderTotal=orderTotal
-          // axios.get('/users/orderDetail',{params:{
-          //   orderId:orderId
-          //   }}).then((res)=>{
-          //       if (res.data.status==='0'){
-          //         this.orderId=orderId;     //如说数据成功,订单id赋值
-          //         this.orderTotal=res.data.result  //订单总价赋值
-
-          //       }
-          // })
+          this.$axios.get('/users/delOrderGoods',{params:{orderId:this.orderId}}).then(res=>{
+            console.log('请求成功了')
+          })
         },
         components:{
           Header,
